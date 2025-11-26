@@ -1,0 +1,8 @@
+# Entornos virtuales
+venv/
+
+# Python
+__pycache__/
+
+#Beamer
+beamer/
