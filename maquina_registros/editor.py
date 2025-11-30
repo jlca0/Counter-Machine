@@ -52,11 +52,11 @@ class Editor:
 
         # Creamos una ventana para el texto.
         self.texto = scrolledtext.ScrolledText(self.ventana, font=("Courier", 10), bg='grey', fg='blue')
-        self.texto.grid(row=2, column=0)
+        self.texto.grid(row=1, column=0)
         
         # Creamos una ventana para la consola.
         self.consola = scrolledtext.ScrolledText(self.ventana, font=("Courier", 9), state='disabled', bg='black', fg='white')
-        self.consola.grid(row=3, column=0)
+        self.consola.grid(row=2, column=0)
         
     
     def _abrir(self)->None:
@@ -97,8 +97,12 @@ class Editor:
         self.consola.config(state='normal')
         self.consola.delete(1.0, tk.END)
         self.consola.config(state='disabled')
-        self._escribir(f"""Ejecutando: {self.archivo}...
-        Estado final: {maquina.Registro[:numero_registros]} \n""")
+        self._escribir(f"Ejecutando: {self.archivo}...")
+
+        if (numero_registros > 0):  # Minsky.ejecutar devolvía -1 si el programa no terminaba.
+            self._escribir(f"Estado final: {maquina.Registro[:numero_registros]} \n")
+        else:
+            self._escribir(f"El programa no termina, número máximo de iteraciones alcanzado {maquina.iter_max}")
 
     def _depurar(self)->None:
         """
@@ -113,7 +117,7 @@ class Editor:
         self.consola.config(state='disabled')
         for linea in reversed(mensaje):
             self._escribir(linea)
-        self._escribir(f"Depurando: {self.archivo}... \n")
+        self._escribir(f"Depurando: {self.archivo}... \n")  #No distinguimos porque Minsky.depurar siempre devuelve todo, para verificar mal funcionamiento.
         
     def _escribir(
             self, 
@@ -128,9 +132,6 @@ class Editor:
         self.consola.config(state='normal')
         self.consola.insert(1.0,mensaje)
         self.consola.config(state='disabled')
-
-        
-
 
 if __name__ == "__main__":
     editor = Editor(100)

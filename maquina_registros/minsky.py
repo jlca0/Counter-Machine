@@ -15,6 +15,7 @@ class Minsky:
         Argumentos:
             N (int): Número de registros que se van a usar.
         """
+        self.iter_max = 1e8  # Número máximo de iteraciones, evitamos bucles infinitos.
         self.Registro = np.zeros(N,dtype=int)  # Inicializamos los registros R1,...,RN con valor 0.
 
     def ejecutar(
@@ -34,7 +35,8 @@ class Minsky:
         numero_registros = len(programa[0])
         self.Registro[:numero_registros] = np.array(list(programa[0]))
         Estado = 1
-        while (Estado != 0):
+        contador = 0
+        while (Estado != 0 and contador < self.iter_max):
             if (len(programa[Estado]) == 3):  # Instrucción del tipo (i,+,j)
                 self.Registro[programa[Estado][0]-1] += 1
                 Estado = programa[Estado][2]
@@ -44,7 +46,11 @@ class Minsky:
                     Estado = programa[Estado][2]
                 else:
                     Estado = programa[Estado][3]
-        return numero_registros 
+            contador += 1
+        if(contador == self.iter_max):  # Verificamos por qué acabó el bucle.
+            return -1
+        else:
+            return numero_registros
 
     def depurar(
             self, 
