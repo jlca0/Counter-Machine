@@ -28,8 +28,8 @@ class Editor:
  
         self.N = N
         self.archivo = None  # La ruta de acceso del archivo de texto que vamos a editar.
-        self._crear_interfaz()
-        self.ventana.mainloop()
+        self._crear_interfaz()  # Método prvado que crea la interfaz.
+        self.ventana.mainloop()  # Mostramos la pantalla.
     
     def _crear_interfaz(self)->None:
         """
@@ -91,7 +91,7 @@ class Editor:
         
         # Ejecutamos el programa seleccionado con esos valores usando un objeto de clase Minsky.
         maquina = Minsky(self.N)
-        numero_registros = maquina.ejecutar(self.texto.get("1.0", tk.END))
+        registros_usados = maquina.ejecutar(self.texto.get("1.0", tk.END))
 
         # Pintamos el proceso en pantalla.
         self.consola.config(state='normal')
@@ -99,8 +99,8 @@ class Editor:
         self.consola.config(state='disabled')
         self._escribir(f"Ejecutando: {self.archivo}...")
 
-        if (numero_registros > 0):  # Minsky.ejecutar devolvía -1 si el programa no terminaba.
-            self._escribir(f"Estado final: {maquina.Registro[:numero_registros]} \n")
+        if (registros_usados > 0):  # Minsky.ejecutar devolvía -1 si el programa no terminaba.
+            self._escribir(f"Estado final: {maquina.Registro[:registros_usados]} \n")
         else:
             self._escribir(f"El programa no termina, número máximo de iteraciones alcanzado {maquina.iter_max}")
 

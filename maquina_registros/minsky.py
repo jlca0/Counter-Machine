@@ -16,7 +16,7 @@ class Minsky:
         Argumentos:
             N (int): Número de registros que se van a usar.
         """
-        self.iter_max = 1e8  # Número máximo de iteraciones, evitamos bucles infinitos.
+        self.iter_max = 1e8  # Número máximo de iteraciones, gestionamos bucles infinitos.
         self.Registro = np.zeros(N,dtype=int)  # Inicializamos los registros R1,...,RN con valor 0.
 
     def ejecutar(
@@ -33,25 +33,26 @@ class Minsky:
             numero_registros: (int) Número de registros que se usan en el código ejecutado.
         """
         programa = self._leer(archivo)
-        numero_registros = len(programa[0])
-        self.Registro[:numero_registros] = np.array(list(programa[0]))
-        Estado = 1
+        registros_usados = len(programa[0])
+        self.Registro[:registros_usados] = np.array(list(programa[0]))
+        estado_actual = 1
         contador = 0
-        while (Estado != 0 and contador < self.iter_max):
-            if (len(programa[Estado]) == 3):  # Instrucción del tipo (i,+,j)
-                self.Registro[programa[Estado][0]-1] += 1
-                Estado = programa[Estado][2]
+        while (estado_Actual != 0 and contador < self.iter_max):
+            instruccion = programa[estado_actual]
+            if (len(instruccion) == 3):  # Instrucción del tipo (i,+,j)
+                self.Registro[instruccion[0]-1] += 1
+                estado_Actual = instruccion[2]
             else:  #Instrucción del tipo (i,-,j,k)
-                if (self.Registro[programa[Estado][0]-1] > 0):
-                    self.Registro[programa[Estado][0]-1] -= 1
-                    Estado = programa[Estado][2]
+                if (self.Registro[instruccion[0]-1] > 0):
+                    self.Registro[instruccion[0]-1] -= 1
+                    estado_actual = instruccion[2]
                 else:
-                    Estado = programa[Estado][3]
+                    estado_actual = instruccion[3]
             contador += 1
         if(contador == self.iter_max):  # Verificamos por qué acabó el bucle.
             return -1
         else:
-            return numero_registros
+            return registros_usados
 
     def depurar(
             self, 
@@ -68,23 +69,24 @@ class Minsky:
             numero_registros: (list[str]) Lista de mensajes de depurado mostrados en consola.
         """
         programa = self._leer(archivo)
-        numero_registros = len(programa[0])
-        self.Registro[:numero_registros] = np.array(list(programa[0]))
-        Estado = 1
+        registros_usados = len(programa[0])
+        self.Registro[:registros_usados] = np.array(list(programa[0]))
+        estado_actual = 1
         contador = 0
-        mensaje = [f"Iteración  Estado  Registros \n",f"{contador}          S{Estado}          {self.Registro[:numero_registros]} \n"]
-        while (Estado != 0):
+        mensaje = [f"Iteración  Estado  Registros \n",f"{contador}          S{estado_actual}          {self.Registro[:registros_usados]} \n"]
+        while (estado_actual != 0):
             contador += 1
-            if (len(programa[Estado]) == 3):  # Instrucción del tipo (i,+,j)
-                self.Registro[programa[Estado][0]-1] += 1
-                Estado = programa[Estado][2]
+            instruccion = programa[estado_actual]
+            if (len(instruccion) == 3):  # Instrucción del tipo (i,+,j)
+                self.Registro[instruccion[0]-1] += 1
+                estado_actual = instruccion[2]
             else:  #Instrucción del tipo (i,-,j,k)
-                if (self.Registro[programa[Estado][0]-1] > 0):
-                    self.Registro[programa[Estado][0]-1] -= 1
-                    Estado = programa[Estado][2]
+                if (self.Registro[instruccion[0]-1] > 0):
+                    self.Registro[instruccion[0]-1] -= 1
+                    estado_actual = instruccion[2]
                 else:
-                    Estado = programa[Estado][3]
-            mensaje.append(f"{contador}          S{Estado}          {self.Registro[:numero_registros]} \n")
+                    estado_actual = instruccion[3]
+            mensaje.append(f"{contador}          S{estado_actual}          {self.Registro[:registros_usados]} \n")
         return mensaje
 
     def _leer(
