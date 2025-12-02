@@ -11,6 +11,7 @@ class Minsky:
 
         Atributos:
             Registro: (array[int]) Valor de cada registro de la máquina de Minsky.
+            iter_max: (int) Número máximo de iteraciones.
 
         Argumentos:
             N (int): Número de registros que se van a usar.
@@ -107,4 +108,3 @@ class Minsky:
                 instruccion_lista = linea_limpia.split(',')
                 programa.append(tuple(int(x) for x in instruccion_lista))
         return programa
-

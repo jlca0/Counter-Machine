@@ -135,4 +135,3 @@ class Editor:
 
 if __name__ == "__main__":
     editor = Editor(100)
-    editor.iniciar()
