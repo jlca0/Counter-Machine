@@ -70,7 +70,7 @@ class Editor:
             self.texto.delete(1.0, tk.END)  # Borramos el texto que mostraba el editor.
             self.texto.insert(1.0, fichero) # Volcamos el nuevo archivo.
             self.archivo = ruta  
-            self._escribir(f"Archivo cargado: {ruta}")
+            self._escribir_consola(f"Archivo cargado: {ruta}")
     
     def _guardar(self)->None:
         """
@@ -81,7 +81,7 @@ class Editor:
             self.archivo = filedialog.asksaveasfilename(filetypes=[("Texto", "*.txt")])  # Seleccionamos una dirección de guardado.
         else:
             open(self.archivo, 'w').write(self.texto.get(1.0, tk.END))  # Se sobreescribe el fichero.
-        self._escribir(f"Guardado: {self.archivo} \n")
+        self._escribir_consola(f"Guardado: {self.archivo} \n")
     
     def _ejecutar(self)->None:        
         """
@@ -94,15 +94,13 @@ class Editor:
         registros_usados = maquina.ejecutar(self.texto.get("1.0", tk.END))
 
         # Pintamos el proceso en pantalla.
-        self.consola.config(state='normal')
-        self.consola.delete(1.0, tk.END)
-        self.consola.config(state='disabled')
-        self._escribir(f"Ejecutando: {self.archivo}...")
+        self._borrar_consola
+        self._escribir_consola(f"Ejecutando: {self.archivo}...")
 
         if (registros_usados > 0):  # Minsky.ejecutar devolvía -1 si el programa no terminaba.
-            self._escribir(f"Estado final: {maquina.Registro[:registros_usados]} \n")
+            self._escribir_consola(f"Estado final: {maquina.Registro[:registros_usados]} \n")
         else:
-            self._escribir(f"El programa no termina, número máximo de iteraciones alcanzado {maquina.iter_max}")
+            self._escribir_consola(f"El programa no termina, número máximo de iteraciones alcanzado {maquina.iter_max}")
 
     def _depurar(self)->None:
         """
@@ -112,14 +110,12 @@ class Editor:
         maquina = Minsky(self.N)
         mensaje = maquina.depurar(self.texto.get("1.0",tk.END))
 
-        self.consola.config(state='normal')
-        self.consola.delete(1.0, tk.END)
-        self.consola.config(state='disabled')
+        self._borrar_consola
         for linea in reversed(mensaje):
-            self._escribir(linea)
-        self._escribir(f"Depurando: {self.archivo}... \n")  #No distinguimos porque Minsky.depurar siempre devuelve todo, para verificar mal funcionamiento.
+            self._escribir_consola(linea)
+        self._escribir_consola(f"Depurando: {self.archivo}... \n")  #No distinguimos porque Minsky.depurar siempre devuelve todo, para verificar mal funcionamiento.
         
-    def _escribir(
+    def _escribir_consola(
             self, 
             mensaje:str
         )->None:
@@ -131,6 +127,14 @@ class Editor:
         """
         self.consola.config(state='normal')
         self.consola.insert(1.0,mensaje)
+        self.consola.config(state='disabled')
+
+    def _borrar_consola(self)->None:
+        """
+        Borra el contenido de la consola.
+        """
+        self.consola.config(state='normal')
+        self.consola.delete(1.0, tk.END)
         self.consola.config(state='disabled')
 
 if __name__ == "__main__":

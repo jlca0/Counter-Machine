@@ -16,7 +16,7 @@ class Minsky:
         Argumentos:
             N (int): Número de registros que se van a usar.
         """
-        self.iter_max = 1e8  # Número máximo de iteraciones, gestionamos bucles infinitos.
+        self.iter_max = int(1e8)  # Número máximo de iteraciones, gestionamos bucles infinitos.
         self.Registro = np.zeros(N,dtype=int)  # Inicializamos los registros R1,...,RN con valor 0.
 
     def ejecutar(
@@ -30,18 +30,18 @@ class Minsky:
             archivo: (str) Contenido de un archivo de texto formateado como programa de máquina de resgistros.
 
         Salida:
-            numero_registros: (int) Número de registros que se usan en el código ejecutado.
+            registros_usados: (int) Número de registros que se usan en el código ejecutado o -1 que codifica un mensaje de error.
         """
         programa = self._leer(archivo)
         registros_usados = len(programa[0])
         self.Registro[:registros_usados] = np.array(list(programa[0]))
         estado_actual = 1
         contador = 0
-        while (estado_Actual != 0 and contador < self.iter_max):
+        while (estado_actual != 0 and contador < self.iter_max):
             instruccion = programa[estado_actual]
             if (len(instruccion) == 3):  # Instrucción del tipo (i,+,j)
                 self.Registro[instruccion[0]-1] += 1
-                estado_Actual = instruccion[2]
+                estado_actual = instruccion[2]
             else:  #Instrucción del tipo (i,-,j,k)
                 if (self.Registro[instruccion[0]-1] > 0):
                     self.Registro[instruccion[0]-1] -= 1
@@ -49,7 +49,7 @@ class Minsky:
                 else:
                     estado_actual = instruccion[3]
             contador += 1
-        if(contador == self.iter_max):  # Verificamos por qué acabó el bucle.
+        if (contador == self.iter_max):  # Verificamos por qué acabó el bucle.
             return -1
         else:
             return registros_usados
@@ -66,7 +66,7 @@ class Minsky:
             archivo: (str) Contenido de un archivo de texto formateado como programa de máquina de resgistros.
 
         Salida:
-            numero_registros: (list[str]) Lista de mensajes de depurado mostrados en consola.
+            mensaje: (list[str]) Lista de mensajes de depurado mostrados en consola.
         """
         programa = self._leer(archivo)
         registros_usados = len(programa[0])
@@ -74,7 +74,7 @@ class Minsky:
         estado_actual = 1
         contador = 0
         mensaje = [f"Iteración  Estado  Registros \n",f"{contador}          S{estado_actual}          {self.Registro[:registros_usados]} \n"]
-        while (estado_actual != 0):
+        while (estado_actual != 0 and contador < self.iter_max):
             contador += 1
             instruccion = programa[estado_actual]
             if (len(instruccion) == 3):  # Instrucción del tipo (i,+,j)
