@@ -1,74 +1,74 @@
 import numpy as np
 
 
-class Instruccion:
+class Instruction:
     def __init__(
             self, 
-            tupla:tuple[int]
+            x:tuple[int]
         )->None:
         """
-        Construye un objeto de clase Instruccion que simula una instrucción para una máquina de registros.
+        Creates an object of the class Instruction which resembles a counter machine instruction.
 
-        Atributos:
-            registro (int): Registro que edita la instrucción.
-            estado_principal (int): Estado que adopta la máquina si la instrucción consigue modificar un registro.
-            estado_final (Optional[int]): Estado final que alcanza una instrucción del tipo RES.
+        Atributes:
+            register (int): register edited by the instruction.
+            main_state (int): State reached by the machine after the execution of the instruction.
+            final_state (Optional[int]): Final state reached after the execution of a RES type of Instruction.
 
-        Argumentos:
-            tupla (tuple[int]): Una tupla de int que representa una instrucción, donde pone + ponemos +1 y donde pone - ponemos -1.
+        Arguments:
+            x (tuple[int]): An int tuple which resembles an instruction, we match the usual plus, minus symbols with +1 and -1 respectively.
         """
-        if len(tupla) == 3:
-            self.registro = tupla[0] - 1
-            self.estado_principal = tupla[2]
-            self.estado_final = None
-        elif len(tupla) == 4:
-            self.registro = tupla[0] - 1
-            self.estado_principal = tupla[2]
-            self.estado_final = tupla[3]
+        if len(x) == 3:
+            self.register = x[0] - 1
+            self.main_state = x[2]
+            self.final_state = None
+        elif len(x) == 4:
+            self.register = x[0] - 1
+            self.main_state = x[2]
+            self.final_state = x[3]
 
-    def es_suma(self)->bool:
+    def is_sum(self)->bool:
         """
-        Comprueba si una instrucción es de tipo (i,+,j).
+        Checks whether an instruction is of the type (i,+,j).
         """
-        return self.estado_final is None
+        return self.final_state is None
 
-    def es_resta(self)->bool:
+    def is_res(self)->bool:
         """
-        Comprueba si una instrucción es de tipo (i,-,j,k).
+        Checks whether an instruction is of the type (i,-,j,k).
         """
-        return self.estado_final is not None
+        return self.final_state is not None
 
-class Programa:
+class Program:
     def __init__(
             self,
-            lista:list[tuple[int] | Instruccion]
+            x:list[tuple[int] | Instruction]
         )->None:
         """
-        Crea un objeto de la clase Programa que contiene la información sobre el estado inicial de la máquina, 
-        el número de registros usados y las instrucciones asociadas a cada estado.
+        Creates an obect of the class Program which contains all the information about the initial state of the machine,
+        the number of registres used as well as the instruction related to each state.
 
-        Atributos:
-            estado_inicial: (tuple[int]) Una tupla conteniendo los registros usados por el programa a ejecutar.
-            numero_registros: (int) El número de registros usados.
-            instrucciones: list[Instruccion] Una lista con cada instrucción en la posición correspondiente a su estado, 
-            al S0 le hacemos corresponder None.
+        Atributes:
+            initial_state: (tuple[int]) A tuple containing the registres used by the program that will be run.
+            number_registres: (int) The number of registres used.
+            instructions: list[Instruction]  A list containing each instruction holding the position corresponding to its related state, 
+            we make None correspond to the default final state S0.
 
-        Argumentos:
-            lista: (list[tuple[int] | Registro]) Una lista cuyo primer elemento es la tupla con los registros usados 
-            y el resto de elementos se corresponden a las instrucciones del programa.
+        Arguments:
+            x: (list[tuple[int] | Registro]) A list whose first element is a tuple itself containing the used registers, 
+            the rest of the elements correspond to the instructions of the program.
         """
-        self.estado_inicial = lista[0]
-        self.numero_registros = len(lista[0])
-        self.instrucciones = [None] + lista[1:]
+        self.initial_state = x[0]
+        self.number_registers = len(x[0])
+        self.instructions = [None] + x[1:]
     
-    def obtener_instruccion(
+    def get_instruction(
         self,
-        estado:int
-        )->Instruccion:
+        state:int
+        )->Instruction:
         """
-        Dado un estado accede a la instrucción asociada en el programa.
+        Given a state it gets the instruction related to that state of the machine.
         """
-        return self.instrucciones[estado]
+        return self.instructions[state]
     
 
 class Minsky:
@@ -77,116 +77,115 @@ class Minsky:
             N:int
         )->None:
         """
-        Construye un objeto de la clase Minsky que simula una máquina de registros.
+        Creates an object of class Minsky which recreates a counter machine.
+        Atributes:
+            register: (array[int]) Value of each register of the Minsky machine.
+            max_iterations: (int) Maximum number of iterations.
 
-        Atributos:
-            Registro: (array[int]) Valor de cada registro de la máquina de Minsky.
-            iteraciones_maximas: (int) Número máximo de iteraciones.
-
-        Argumentos:
-            N (int): Número de registros que se van a usar.
+        Arguments:
+            N (int): Number of registers to be used.
         """
-        self.iteraciones_maximas = int(1e8)  # Número máximo de iteraciones, gestionamos bucles infinitos.
+        self.max_iterations = int(1e8)  # Maximun number of iterations for handling of infinite loops.
         if N > 0:
-            self.registro = np.zeros(N, dtype=int)  # Inicializamos los registros R1,...,RN con valor 0.
+            self.register = np.zeros(N, dtype=int)  # Initializes registers R1,...,RN to 0.
         else:
-            raise ValueError("Debe introducirse un número natural de registros disponibles (N)")
+            raise ValueError("A natural number of registers is expected (N)")
 
-    def ejecutar(
+    def run(
             self, 
-            archivo:str
+            file:str
         )->int:
         """
-        Ejecuta un programa dado usando la máquina de registros.
+        Runs a given program on the counter machine.
 
-        Argumentos:
-            archivo: (str) Contenido de un archivo de texto formateado como programa de máquina de resgistros.
+        Arguments:
+            file: (str) Content of text file properly formated as counter machine source code.
 
-        Salida:
-            numero_registros: (int) Número de registros que se usan en el código ejecutado o -1 que codifica un mensaje de error.
+        Returns:
+            number_registers: (int) Number of registers used by the program running or -1, which codifies a error message for the editor.
         """
-        programa = self._leer_programa(archivo)
-        self.registro[:programa.numero_registros] = np.array(programa.estado_inicial, dtype=int)
-        estado_actual = 1
-        iteraciones = 0
+        program = self._read_program(file)
+        self.register[:program.number_registers] = np.array(program.initial_state, dtype=int)
+        current_state = 1
+        iterations = 0
 
-        while estado_actual != 0 and iteraciones < self.iteraciones_maximas:
-            instruccion = programa.obtener_instruccion(estado_actual)
-            if instruccion.es_suma():
-                self.registro[instruccion.registro] += 1
-                estado_actual = instruccion.estado_principal
-            elif instruccion.es_resta():
-                if self.registro[instruccion.registro] > 0:
-                    self.registro[instruccion.registro] -= 1
-                    estado_actual = instruccion.estado_principal
+        while current_state != 0 and iterations < self.max_iterations:
+            instruction = program.get_instruction(current_state)
+            if instruction.is_sum():
+                self.register[instruction.register] += 1
+                current_state = instruction.main_state
+            elif instruction.is_res():
+                if self.register[instruction.register] > 0:
+                    self.register[instruction.register] -= 1
+                    current_state = instruction.main_state
                 else:
-                    estado_actual = instruccion.estado_final
-            iteraciones += 1
+                    current_state = instruction.final_state
+            iterations += 1
 
-        if iteraciones == self.iteraciones_maximas:  # Verificamos por qué acabó el bucle.
+        if iterations == self.max_iterations:  # Chekcs why the loop finalized.
             return -1
         else:
-            return programa.numero_registros
+            return program.number_registers
 
-    def depurar(
+    def debug(
             self, 
-            archivo:str
+            file:str
         )->list[str]:
         """
-        Ejecuta un programa dado usando la máquina de registros y almacena en una lista 
-        el estado de la máquina y los registros en cada iteración.
+        Runs a given program on the counter machine and saves in a list the state of the machine 
+        and the value of its registers on each iteration.
 
-        Argumentos:
-            archivo: (str) Contenido de un archivo de texto formateado como programa de máquina de resgistros.
+        Arguments:
+            file: (str) Content of text file properly formated as counter machine source code.
 
-        Salida:
-            historial: (list[str]) Lista de mensajes de depurado mostrados en consola.
+        Returns:
+            history: (list[str]) List of debugging messages to be printed on the terminal.
         """
-        programa = self._leer_programa(archivo)
-        self.registro[:programa.numero_registros] = np.array(programa.estado_inicial, dtype=int)
-        estado_actual = 1
-        iteraciones = 0
-        historial = [f"Iteración  Estado  Registros \n",f"{iteraciones}          S{estado_actual}          {self.registro[:programa.numero_registros]} \n"]
+        program = self._read_program(file)
+        self.register[:program.number_registers] = np.array(program.initial_state, dtype=int)
+        current_state = 1
+        iterations = 0
+        history = [f"Iteration  State  Registers \n",f"{iterations}          S{current_state}          {self.register[:program.number_registers]} \n"]
 
-        while estado_actual != 0 and iteraciones < self.iteraciones_maximas:
-            iteraciones += 1
-            instruccion = programa.obtener_instruccion(estado_actual)
-            if instruccion.es_suma():
-                self.registro[instruccion.registro] += 1
-                estado_actual = instruccion.estado_principal
-            elif instruccion.es_resta():
-                if self.registro[instruccion.registro] > 0:
-                    self.registro[instruccion.registro] -= 1
-                    estado_actual = instruccion.estado_principal
+        while current_state != 0 and iterations < self.max_iterations:
+            iterations += 1
+            instruction = program.get_instruction(current_state)
+            if instruction.is_sum():
+                self.register[instruction.register] += 1
+                current_state = instruction.main_state
+            elif instruction.is_res():
+                if self.register[instruction.register] > 0:
+                    self.register[instruction.register] -= 1
+                    current_state = instruction.main_state
                 else:
-                    estado_actual = instruccion.estado_final
-            historial.append(f"{iteraciones}          S{estado_actual}          {self.registro[:programa.numero_registros]} \n")
+                    current_state = instruction.final_state
+            history.append(f"{iterations}          S{current_state}          {self.register[:program.number_registers]} \n")
 
-        return historial
+        return history
 
-    def _leer_programa(
+    def _read_program(
             self, 
-            archivo:str
-        )->Programa:
+            file:str
+        )->Program:
         """
-        Lee un archivo .txt conteniendo un programa y lo pasa a un string que comprende _ejecutar.
+        Reads a txt file containing a program and returns a string for Minsky.run.
 
-        Argumentos:
-            archivo: (str) Contenido de un archivo de texto formateado como programa de máquina de resgistros.
+        Arguments:
+            file: (str) Content of text file properly formated as counter machine source code.
 
-        Salida: 
-            programa: (Programa) Un objeto del tipo Programa.
+        Returns: 
+            program: (Program.) A Program object.
         """
-        lineas = [l.strip() for l in archivo.split('\n') if l.strip()]  # Filter empty lines
-        contenido_archivo = []
+        lines = [l.strip() for l in file.split('\n') if l.strip()]  # Filter empty lines
+        file_content = []
     
         # Estado inicial de la máquina.
-        valores = lineas[0].split(',')
-        contenido_archivo.append(tuple(int(x) for x in valores))
+        values = lines[0].split(',')
+        file_content.append(tuple(int(x) for x in values))
     
         # Las intrucciones del programa.
-        for linea in lineas[1:]:
-            valores = linea.split(',')
-            contenido_archivo.append(Instruccion(tuple(int(x) for x in valores)))
+        for line in lines[1:]:
+            values = line.split(',')
+            file_content.append(Instruction(tuple(int(x) for x in values)))
 
-        return Programa(contenido_archivo)
+        return Program(file_content)
