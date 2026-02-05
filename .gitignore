@@ -1,8 +1,5 @@
-# Entornos virtuales
-venv/
-
-# Python
-__pycache__/
+# vscode
+.vscode/
 
 #Beamer
 beamer/
