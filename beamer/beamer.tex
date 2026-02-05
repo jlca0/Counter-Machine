@@ -1,0 +1,246 @@
+\documentclass[aspectratio=169]{beamer}
+
+% Tema y colores
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Paquetes necesarios
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{tikz}
+\usetikzlibrary {arrows.meta,automata,positioning}
+
+% Configuración de TikZ para autómatas
+\tikzset{
+    auto,
+    node distance=2.5cm,
+    initial text=,
+    >={Stealth},
+    every state/.style={draw=black!50,thick,fill=gray!20}
+}
+
+% Información del documento
+\title{Counter Machine}
+\subtitle{A Python implementation with use examples.}
+\author{Jose Luis Cervantes Ariza}
+\institute{Universidad de Málaga}
+\date{4 de diciembre de 2025}
+
+\begin{document}
+
+% Diapositiva de título
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Diapositiva de contenido
+\begin{frame}{Index}
+    \tableofcontents
+\end{frame}
+
+% Sección 1
+\section{Introduction}
+
+\begin{frame}{Introduction: What is a counter machine?}
+    \begin{itemize}
+        \item A sequence of \textbf{registers} ${R_1,R_2 ... \in \mathbb{N}}$
+        \item A sequence of \textbf{states} ${S_0,S_1,S_2...}$ where $S_0$ stands for the \textbf{halting state}. 
+        \item An instruction $\mathbf{(i,+,r)}$ which adds 1 to the register $R_i$ and switches to state $S_r$.
+        \item An instruction $\mathbf{(i,-,r,t)}$ which subtracts 1 to the register $R_i$ and switches to state $S_r$, if $R_i=0$ then it switches to state $S_t$ without subtracting.
+    \end{itemize}
+\begin{center}
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $R_1$ & $R_2$ & $R_3$ & $R_4$ & ... \\
+        \hline
+    \end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Introduction: A computable function.}
+    A (possibly partial) function $f:\mathbb{N}^{k}\rightarrow\mathbb{N}$ is said to be \textbf{computable} if there exists
+    a program P (a finite sequence of instructions) for a counter machine such that, given the initial state
+    $R_1 = n_1,...,R_k = n_k$, whenever the halting state $S_0$ is reached it turns out that $R_1 = f(n_1,...,n_k)$.
+    
+\end{frame}
+
+% Sección 2
+
+\section{Implementation}
+
+\begin{frame}{Implementation: The Minsky class.}
+The \textbf{Minsky class} has two attributes:
+    \begin{itemize}
+        \item An array of natural numbers \textbf{registers} which will play the role of the register band (np.ndarray(int)).
+        \item A natural number \textbf{max-iterations} which will handle infinite loops (int).
+    \end{itemize}
+and four methods: 
+    \begin{itemize}
+        \item A constructor \textbf{init} which takes a natural number indicating the length of \textbf{registers}.
+        \item A method \textbf{run} which, given a text file, runs the code written in it.
+        \item A method \textbf{debug} which, given a text file, runs the code written in it and prints the result on screen step by step.
+        \item A (private) method \textbf{read} which converts text files to ready-to-run counter machine programs. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Implementation: The Editor class.}
+The \textbf{Editor class} has five attributes: the number of registers to be used by the counter machine and another four
+attributes related to the arranging of windows, scrollable text, file paths...  \\
+It has been implemented making use of the standard Python library \textbf{tkinter}.
+\end{frame}
+
+% Sección 2
+\section{Use examples}
+
+\begin{frame}{Example: Register exchange.}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state, initial] (s1) {$S_1$};
+        \node[state, accepting, right of=s1] (s0) {$S_0$};
+        \node[state, below of=s1] (s3) {$S_3$};
+        \node[state, below of=s0] (s2) {$S_2$};
+        
+        \path[->,dashed] (s1) edge[above] (s0);
+        \path[->] (s1) edge[right] node{$R_1-1$} (s2)
+              (s2) edge[below] node{$R_2+1$} (s3)
+              (s3) edge[left] node{$R_3+1$} (s1);
+              
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Example: Subtraction of natural numbers.}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state, initial] (s1) {$S_1$};
+        \node[state, right of=s1] (s2) {$S_2$};
+        \node[state,accepting, below of=s2] (s0) {$S_0$};
+        
+        \path[->,dashed] 
+              (s1) edge[bend right, above] (s0)
+              (s2) edge[right] (s0);
+        \path[->]
+              (s1) edge[bend right, below] node{$R_1-1$} (s2)
+              (s2) edge[bend right, above] node{$R_2-1$} (s1);
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Example: Euclidean remainder (Initialization.)}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state, initial] (s1) {$S_1$};
+        \node[state, right of=s1] (s4) {$S_4$};
+        \node[state, below of=s1] (s3) {$S_3$};
+        \node[state, below of=s4] (s2) {$S_2$};
+
+        \node[state, accepting, right of=s4] (s7) {$S_7$};
+        \node[state, above of=s4] (s5) {$S_5$};
+        \node[state, above of=s7] (s6) {$S_6$};
+        
+        \path[->,dashed] (s1) edge[above] (s4)
+                       (s4) edge[above] (s7);
+        \path[->]
+              (s1) edge[right] node{$R_1-1$} (s2)
+              (s2) edge[below] node{$R_3+1$} (s3)
+              (s3) edge[left] node{$R_4+1$} (s1)
+
+              (s4) edge[left] node{$R_2-1$} (s5)
+              (s5) edge[above] node{$R_5+1$} (s6)
+              (s6) edge[right] node{$R_6+1$} (s4)
+              ;
+              
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Example: Euclidean remainder (Main loop.)}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state,initial] (s7) {$S_7$};
+        \node[state, right of=s7] (s8) {$S_8$};
+        \node[state, right of=s8] (s23) {$S_{23}$};
+        \node[state, right of=s23] (s24) {$S_{24}$};  
+        \node[state, below of=s7] (s9) {$S_9$};
+        \node[state, accepting, below of=s9] (s0) {$S_0$};
+        \node[state, right of=s9] (s10) {$S_{10}$};
+        \node[state, accepting, right of=s10] (s11) {$S_{11}$};
+
+        \path [->,dashed] (s7) edge[below] (s9)
+                       (s9) edge[left] node{$n_1 | n_2$} (s0)
+                       (s8) edge[below] node{$n_1>n_2$} (s23)
+                       (s23) edge[bend left] (s0);
+        \path[->] (s7) edge[bend left, above] node{$R_3-1$} (s8)
+              (s8) edge[bend left, below] node{$R_5-1$} (s7)
+              (s23) edge[bend left, above] node{$R_6-1$} (s24)
+              (s24) edge[bend left, below] node{$R_1+1$} (s23)
+              (s9) edge[above] node{$R_5-1$} (s10)
+              (s9) edge[below] node{$n_2>n_1$} (s10)
+              (s10) edge[above] node{$R_5+1$} (s11);
+
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Examples: Euclidean remainder (Tidy up of $R_3, R_4$.)}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state, initial] (s11) {$S_{11}$};
+        \node[state, right of=s11] (s14) {$S_{14}$};
+        \node[state, accepting, right of= s14] (s16) {$S_{16}$};
+        \node[state, below of=s11] (s12) {$S_{12}$};
+        \node[state, left of=s12] (s13) {$S_{13}$};
+        \node[state, above of=s14] (s15) {$S_{15}$};
+
+        \path [->,dashed] (s11) edge[above] (s14)
+                       (s14) edge[above] (s16);
+        \path[->] (s11) edge[right] node{$R_4-1$} (s12)
+              (s12) edge[below] node{$R_7+1$} (s13)
+              (s13) edge[left] node{$R_3+1$} (s11)
+              (s12) edge[below] node{$R_7+1$} (s13)
+              (s14) edge[bend left, left] node{$R_7-1$} (s15)
+              (s15) edge[bend left, right] node{$R_4+1$} (s14);
+              
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Example: Euclidean remainder (Tidy up of $R_5, R_6$.)}
+    \begin{center}
+    \begin{tikzpicture}
+        \node[state, initial] (s16) {$S_{16}$};
+        \node[state, right of=s16] (s18) {$S_{18}$};
+        \node[state] (s21) [right of= s18] {$S_{21}$};
+        \node[state, accepting] (s7) [right of= s21] {$S_{7}$};
+        \node[state, below of=s16] (s17) {$S_{17}$};
+        \node[state, above of=s18] (s19) {$S_{19}$};
+        \node[state, above of=s21] (s20) {$S_{20}$};
+        \node[state, below of=s21] (s22) {$S_{22}$};
+
+        \path [->,dashed] (s16) edge[above] (s18)
+                       (s18) edge[above] (s21)
+                       (s21) edge[above] (s7);
+        \path[->] (s16) edge[bend right, left] node{$R_6-1$} (s17)
+              (s17) edge[bend right, right] node{$R_2+1$} (s16)
+              (s18) edge[left] node{$R_5-1$} (s19)
+              (s19) edge[above] node{$R_6+1$} (s20)
+              (s20) edge[right] node{$R_7+1$} (s18)
+              (s21) edge[bend right, left] node{$R_7-1$} (s22)
+              (s22) edge[bend right, right] node{$R_5+1$} (s21);
+              
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+% Diapositiva final
+\begin{frame}[plain]
+    \begin{center}
+        {\Huge Thank you!}
+        
+        \vspace{1cm}
+        
+        {\large Questions, suggestions or congratulations are now welcome.}
+    \end{center}
+\end{frame}
+
+\end{document}
