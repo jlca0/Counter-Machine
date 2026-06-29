@@ -1,4 +1,4 @@
-# minsky-machine
+# counter_machine
 
 > *[English below](#english)*
 
