@@ -12,6 +12,8 @@ Implementación de una máquina de registros de Minsky (equivalente Turing) con 
 
 - **IDE**: En `editor.py` se implementa un entorno de desarrollo integrado usando `tkinter`. Permite abrir, editar y guardar programas en formato `.txt`, ejecutarlos sobre la máquina y depurarlos con visualización del estado de los registros en cada iteración.
 
+- **Ejemplos y documentación**: Se incluyen programas de ejemplo en `.txt` que ilustran operaciones básicas (suma, intercambio de registros) y un programa más complejo que calcula el resto de la división euclídea. Su funcionamiento se explica en un documento `.tex` en español.
+
 ---
 
 ## English <a name="english"></a>
@@ -21,3 +23,5 @@ Implementation of a Minsky counter machine (Turing equivalent) with a custom IDE
 - **Register machine**: `minsky.py` implements a Minsky machine with N registers. It defines increment instructions `(i, +, j)` and conditional decrement instructions `(i, -, j, k)`, along with source code reading and parsing. It includes a standard execution mode and a step-by-step debug mode, with infinite loop detection via an iteration limit.
 
 - **IDE**: `editor.py` implements an integrated development environment using `tkinter`. It allows opening, editing, and saving programs in `.txt` format, running them on the machine, and debugging them with register state visualization at each iteration.
+
+- **Examples and documentation**: Example programs in `.txt` illustrate basic operations (addition, register swapping) and a more complex program computing the integer division remainder. Their implementation is explained in a Spanish `.tex` document.
